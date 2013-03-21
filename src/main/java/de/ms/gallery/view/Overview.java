@@ -3,6 +3,8 @@ package de.ms.gallery.view;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -11,17 +13,15 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 
+import de.ms.GalleryUI;
+
 @SuppressWarnings("serial")
-public class CollectionPreview extends CustomComponent
+public class Overview extends CustomComponent implements View
 {
 	private final VerticalLayout layout = new VerticalLayout();
 	
-	public String name;
-	
-	public CollectionPreview( String name )
+	public Overview()
 	{
-		this.name = name;
-		
 		layout.setSpacing(true);
 		layout.setMargin(true);
 		
@@ -46,6 +46,13 @@ public class CollectionPreview extends CustomComponent
 		
         setCompositionRoot( layout );
 	}
+
+	@Override
+	public void enter(ViewChangeEvent event)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 	
 	public void addPreviewButton( Button btn )
 	{
@@ -55,7 +62,7 @@ public class CollectionPreview extends CustomComponent
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				fireEvent( new CollectionPreview.OpenCollectionEvent( UI.getCurrent(), event.getButton().getCaption() ) );
+				( (GalleryUI) UI.getCurrent() ).navigator.navigateTo(event.getButton().getCaption());
 			}
 		});
 		
@@ -68,14 +75,12 @@ public class CollectionPreview extends CustomComponent
 	///////////////////////////////////
 	
 	private static final Method CREATE_COLLECTION_METHOD;
-	private static final Method OPEN_COLLECTION_METHOD;
 	
 	static 
 	{
         try 
         {
         	CREATE_COLLECTION_METHOD = CreateCollectionListener.class.getDeclaredMethod("createCollection", new Class[] { CreateCollectionEvent.class });
-        	OPEN_COLLECTION_METHOD = OpenCollectionListener.class.getDeclaredMethod("openCollection", new Class[] { OpenCollectionEvent.class });
         } 
         catch (final java.lang.NoSuchMethodException e) 
         {
@@ -93,25 +98,6 @@ public class CollectionPreview extends CustomComponent
 		private String name;
 		
 		public CreateCollectionEvent(Component source, String name)
-		{
-			super(source);
-			this.name = name;
-		}
-		
-		public String getName()
-		{
-			return name;
-		}
-	}
-	
-	/**
-     * CollectionPreview.OpenCollectionEvent event is sent when an existing Collection is selected.
-     */
-	public static class OpenCollectionEvent extends Component.Event 
-	{
-		private String name;
-		
-		public OpenCollectionEvent(Component source, String name)
 		{
 			super(source);
 			this.name = name;
@@ -143,24 +129,5 @@ public class CollectionPreview extends CustomComponent
 	public void removeCreateCollectionListener(CreateCollectionListener listener) 
 	{
         removeListener(CreateCollectionEvent.class, listener, CREATE_COLLECTION_METHOD);
-    }
-	
-	
-    /**
-     * Receives the events when a Collection is selected.
-     */
-    public interface OpenCollectionListener extends Serializable 
-    {
-        public void openCollection(OpenCollectionEvent event);
-    }
-	
-	public void addOpenCollectionListener(OpenCollectionListener listener) 
-	{
-        addListener(OpenCollectionEvent.class, listener, OPEN_COLLECTION_METHOD);
-    }
-	
-	public void removeOpenCollectionListener(OpenCollectionListener listener) 
-	{
-        removeListener(OpenCollectionEvent.class, listener, OPEN_COLLECTION_METHOD);
     }
 }
